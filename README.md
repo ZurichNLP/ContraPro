@@ -1,35 +1,63 @@
 ContraPro
 ---------
 
-A Large-Scale Test Set for the Evaluation of Context-Aware Pronoun Translation in Neural Machine Translation
+`ContraPro` is a large-scale test set meant to
+- evaluate a specific discourse phenomenon: pronoun translation - automatically
+- promote contrastive evaluation of machine translation systems
 
-This test set allows for a targeted evaluation of English--German pronoun translation.
-Evaluation is contrastive, and the translation system that is evaluated is expected to provide scores (translation probabilities) for a set of given translation hypotheses.
+The test set allows for a targeted evaluation of **English--German** pronoun translation, with a _contrastive_ set of translations.
+
+Contrastive Evaluation
+----------------------
+
+Contrastive evaluation means to use a trained translation model to produce _scores_. Crucially, it does not involve any translation;
+the translations are already given. Any translation system evaluated with this method must be able to provide model scores (negative log probabilities) for existing translations.
+
+The input for scoring is a sentence pair, and the output is a single number. For instance:
+
+    ("Say, if you get near a song, play it.", "Wenn Ihnen ein Song über den Weg läuft, spielen Sie ihn einfach.") -> 0.1975
+
+The key idea of contrastive evaluation is to compare this score (`0.1975` in the example) to the score obtained with another pair of sentences,
+where the translation is _corrupted_ in a certain way. In our case, we replace correct pronouns with wrong ones, as in:
+
+    "Wenn Ihnen ein Song über den Weg läuft, spielen Sie es einfach."
+
+And if a translation model gives lower scores to those _contrastive_ pairs, as in, for example:
+
+    ("Say, if you get near a song, play it.", "Wenn Ihnen ein Song über den Weg läuft, spielen Sie es einfach.") -> 0.0043
+
+We refer to this as a "correct decision" by the model. If this happens consistently, we conclude that the model can
+discriminate between good and bad translations. 
+
 
 Usage Instructions
 ------------------
 
-- download ContraPro:
+Download ContraPro, for instance by cloning:
 
-`https://github.com/ZurichNLP/ContraPro`
+    git clone https://github.com/ZurichNLP/ContraPro
+    cd ContraPro
 
-- download Opensubtitles2016 and extract documents (FINAL INSTRUCTIONS TO BE INCLUDED)
+Download Opensubtitles2018 and extract documents, preferably by just running this predefined script:
 
-- extract raw text (plus context) for ContraPro test set. Note that you can choose the number of context sentences according to what your translation system reports
+    ./setup_opensubs.sh
 
-`perl conversion_scripts/json2text_and_context.pl --source en --target de --dir /path/to/OpenSubtitles_with_document_splitting --json contrapro.json --context 1`
+Extract raw text (plus context) for ContraPro test set. Note that you can choose the number of context sentences according to what your translation system reports
 
-- the previous step will produce 4 files: contrapro.context.{en,de} and contrapro.text.{en,de}. Apply the preprocessing necessary for your system, and score each line in contrapro.text.de with your translation system (conditioned on the source in contrapro.text.en, and the context in contrapro.context.{en,de} - it is your responsibility to pass these in the appropriate format to your system).
+    perl conversion_scripts/json2text_and_context.pl --source en --target de --dir \
+    [/path/to/OpenSubtitles_with_document_splitting, e.g. "documents"] --json contrapro.json --context 1
 
-- use the scores produced in the previous step (one per line), evaluate your system. By default, lower scores are interpreted as better. If your system produces scores where higher is better, add the argument `--maximize`
+The previous step will produce 4 files: `contrapro.context.{en,de}` and `contrapro.text.{en,de}`. Apply the preprocessing necessary for your system, and score each line in `contrapro.text.de` with your translation system (conditioned on the source in `contrapro.text.en`, and the context in `contrapro.context.{en,de}` - it is your responsibility to pass these in the appropriate format to your system).
 
-`python evaluate.py --reference contrapro.json --scores /path/to/your/scores`
+Use the scores produced in the previous step (one per line), evaluate your system. By default, lower scores are interpreted as better. If your system produces scores where higher is better, add the argument `--maximize`
+
+    python evaluate.py --reference contrapro.json --scores [/path/to/your/scores]
 
 
 Publication
----------
+-----------
 
-if you use ContraPro, please cite the following paper:
+If you use ContraPro, please cite the following paper:
 
 Mathias Müller; Annette Rios; Elena Voita; Rico Sennrich (2018). A Large-Scale Test Set for the Evaluation of Context-Aware Pronoun Translation in Neural Machine Translation. In WMT 2018. Brussels, Belgium. 
 
