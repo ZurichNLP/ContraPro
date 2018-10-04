@@ -3,16 +3,11 @@
 
 use strict;
 use utf8;
-#binmode STDIN, ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 use Getopt::Long;
 use File::Spec::Functions qw(rel2abs);
 use JSON::PP;
-
-
-## files in /mnt/storage/karr/users/mmueller/pronoun-sets/preprocessed/opensubs
-# ## /mnt/storage/karr/users/mmueller/pronoun-sets/src/opensubs/documents/
 
 
 my $helpstring = "Usage: $0 [options]
