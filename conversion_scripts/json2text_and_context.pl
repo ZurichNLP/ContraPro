@@ -133,15 +133,13 @@ foreach my $sentence_pair (@$json){
                
                 if($line>1){
                     for(my $c=$context;$c>=1;$c--){
-                        my $src_ctx = @{$filenames{$filename}{"src"}}[$line-$c];
-                        my $trg_ctx = @{$filenames{$filename}{"trg"}}[$line-$c];
-                        
-                        $src_ctx = '\n'  if ($src_ctx eq '');
-                        $trg_ctx = '\n'  if ($trg_ctx eq '');
-                    
-                        print OUT_S_CONTEXT $src_ctx;
-                        print OUT_T_CONTEXT $trg_ctx;
+                        print OUT_S_CONTEXT @{$filenames{$filename}{"src"}}[$line-$c];
+                        print OUT_T_CONTEXT @{$filenames{$filename}{"trg"}}[$line-$c];
                     }
+                }
+                elsif($line=1){
+                    print OUT_S_CONTEXT "\n";
+                    print OUT_T_CONTEXT "\n";
                 }
                 ## print this source and contrastive sentence from error
                 print OUT_S_TEXT "$source";
@@ -155,14 +153,13 @@ foreach my $sentence_pair (@$json){
                         if($line>1){
                             ## print context up to and including sentence -1 from current sentence
                             for(my $c=$context;$c>=1;$c--){
-                                my $src_ctx = @{$filenames{$filename}{"src"}}[$line-$c];
-                                my $trg_ctx = @{$filenames{$filename}{"trg"}}[$line-$c];
-                                
-                                $src_ctx = '\n'  if ($src_ctx eq '');
-                                $trg_ctx = '\n'  if ($trg_ctx eq '');
-                                print OUT_S_CONTEXT $src_ctx;
-                                print OUT_T_CONTEXT $trg_ctx;
+                                print OUT_S_CONTEXT @{$filenames{$filename}{"src"}}[$line-$c];
+                                print OUT_T_CONTEXT @{$filenames{$filename}{"trg"}}[$line-$c];
                             }
+                        }
+                        elsif($line=1){
+                            print OUT_S_CONTEXT "\n";
+                            print OUT_T_CONTEXT "\n";
                         }
                         ## print this source and contrastive sentence from error
                         print OUT_S_TEXT "$source";
