@@ -120,7 +120,7 @@ if($filelist){
   #   open (OUTFILE_T, ">:encoding(UTF-8)", $outpath."$filename.en") or die "Can't open ids file $outpath.$filename.en: $!\n";
     open (OUTFILE_T, ">:encoding(UTF-8)", $outname2) or die "Can't open output file $outname2: $!\n";
   
-    foreach my $line (sort  { $a <=> $b } keys $docs{$filename}){
+    foreach my $line (sort  { $a <=> $b } keys %{$docs{$filename}}){
 	my $source_line = @source_segs[$line];
 	my $target_line = @target_segs[$line];
 	print OUTFILE_S $source_line;
@@ -143,7 +143,7 @@ else{
   #   open (OUTFILE_T, ">:encoding(UTF-8)", $outpath."$filename.en") or die "Can't open ids file $outpath.$filename.en: $!\n";
     open (OUTFILE_T, ">:encoding(UTF-8)", $outname2) or die "Can't open output file $outname2: $!\n";
   
-    foreach my $line (sort  { $a <=> $b } keys $docs{$filename}){
+    foreach my $line (sort  { $a <=> $b } keys %{$docs{$filename}}){
 	my $source_line = @source_segs[$line];
 	my $target_line = @target_segs[$line];
 	print OUTFILE_S $source_line;
