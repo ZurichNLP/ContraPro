@@ -42,14 +42,19 @@ Download Opensubtitles2018 and extract documents, preferably by just running thi
 
     ./setup_opensubs.sh
 
-Extract raw text (plus context) for ContraPro test set. Note that you can choose the number of context sentences according to what your translation system reports
+Extract raw text (plus context) for the ContraPro test set. Note that you can choose the number of context sentences according to what your translation system supports: a sentence-level system does not see any context, a context-aware system might observe 1 to n sentences as context.
 
     perl conversion_scripts/json2text_and_context.pl --source en --target de --dir \
     [/path/to/OpenSubtitles_with_document_splitting, e.g. "documents"] --json contrapro.json --context 1
 
-The previous step will produce 4 files: `contrapro.context.{en,de}` and `contrapro.text.{en,de}`. Apply the preprocessing necessary for your system, and score each line in `contrapro.text.de` with your translation system (conditioned on the source in `contrapro.text.en`, and the context in `contrapro.context.{en,de}` - it is your responsibility to pass these in the appropriate format to your system).
+The previous step will produce 4 files (all should have the same number of lines):
 
-Use the scores produced in the previous step (one per line), evaluate your system. By default, lower scores are interpreted as better. If your system produces scores where higher is better, add the argument `--maximize`
+- `contrapro.text.{en,de}`: Source and target sentences, one sentence per line.
+- `contrapro.context.{en,de}`: Source and target contexts, one sentence per line. If a sentence in `contrapro.text.{en,de}` has no context (e.g. because it is the first sentence in a document), this corresponds to an _empty line_ in `contrapro.context.{en,de}`.
+
+Apply the preprocessing necessary for your system, and score each line in `contrapro.text.de` with your translation system (conditioned on the source in `contrapro.text.en`, and the context in `contrapro.context.{en,de}` - it is your responsibility to pass these in the appropriate format to your system).
+
+Use the scores produced in the previous step (one per line) to evaluate your system. By default, lower scores are interpreted as better. If your system produces scores where higher is better, add the argument `--maximize`
 
     python evaluate.py --reference contrapro.json --scores [/path/to/your/scores]
 
