@@ -64,7 +64,7 @@ Publication
 
 If you use ContraPro, please cite the following paper:
 
-Mathias Müller; Annette Rios; Elena Voita; Rico Sennrich (2018). A Large-Scale Test Set for the Evaluation of Context-Aware Pronoun Translation in Neural Machine Translation. In WMT 2018. Brussels, Belgium. 
+Mathias Müller; Annette Rios; Elena Voita; Rico Sennrich (2018). A Large-Scale Test Set for the Evaluation of Context-Aware Pronoun Translation in Neural Machine Translation. In WMT 2018. Brussels, Belgium. http://www.statmt.org/wmt18/pdf/WMT007.pdf
 
 ```
 @inproceedings{mueller2018,
