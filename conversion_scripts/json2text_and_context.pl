@@ -12,6 +12,7 @@ use JSON::PP;
 
 
 ## files in /mnt/storage/karr/users/mmueller/pronoun-sets/preprocessed/opensubs
+# ## /mnt/storage/karr/users/mmueller/pronoun-sets/src/opensubs/documents/
 
 
 my $helpstring = "Usage: $0 [options]
@@ -57,17 +58,10 @@ my %sent_aligned_files=();
 while (defined(my $subfolder = readdir(DIR))) {
     opendir(SUBDIR, "$dir/$subfolder") or die "can't open directory $subfolder: $!";
     while (defined(my $file = readdir(SUBDIR))) {
-    if($file =~ /\.$source(\.\d+)?\.txt$/){
-#          print STDERR "s file: $file\n";
+    if($file =~ /\.$source$/){
       my $abs_path_file_s = File::Spec->rel2abs( "$dir/$subfolder/".$file ) ;
       ## target file:
-      if($file =~ /\-src\./){ #wmt files -src.en.number.txt -> ref.de.number.txt
-        $file =~ s/src\.$source(\.\d+)?\.txt$/ref\.$target\1\.txt/;
-      }
-      else{ ## cs files en.txt -> de.txt
-        $file =~ s/$source\.txt/$target\.txt/ ;
-      }
-#      print STDERR "t file: $file\n";
+      $file =~ s/$source$/$target/ ;
       my $abs_path_file_t = File::Spec->rel2abs( "$dir/$subfolder/".$file ) ;
       $sent_aligned_files{$abs_path_file_s}=$abs_path_file_t;
     }
@@ -75,16 +69,17 @@ while (defined(my $subfolder = readdir(DIR))) {
     close(SUBDIR)
 }
 closedir(DIR);
-# exit(0);
+
 my %filenames = ();
 
 foreach my $s_file (keys %sent_aligned_files){
 
   my $t_file = $sent_aligned_files{$s_file};
-#    print STDERR "source: $s_file, t: $t_file\n";
+  
   ## read sentence alignments
   open (SOURCE, "<:encoding(UTF-8)", $s_file) or die "Can't open source file $s_file: $!\n"; 
   open (TARGET, "<:encoding(UTF-8)", $t_file) or die "Can't open target file $t_file: $!\n"; 
+  
   ## read segments into arrays
   my @source_segs =  <SOURCE>;
   my @target_segs =  <TARGET>;
@@ -93,12 +88,9 @@ foreach my $s_file (keys %sent_aligned_files){
   
   die "source file $s_file and target file $t_file are of different length! cannot convert json to text." if (scalar(@source_segs) != scalar(@target_segs));
   
-  my ($filename) = ($t_file =~ m/([^\/]+)\.txt$/); ## document id in json is de file
-#     print STDERR "filename $filename nr src ".scalar(@source_segs)."\n";
+   my ($filename) = ($t_file =~ m/([^\/]+)$/); ## document id in json is de file
   $filenames{$filename}{"src"} = \@source_segs;
-  $filenames{$filename}{"trg"} = \@target_segs;
-#    print STDERR " nbr in hash: ".scalar(@{$filenames{$filename}{"src"}})."\n";
-  
+  $filenames{$filename}{"trg"} = \@target_segs;  
 }
 
 
@@ -113,8 +105,6 @@ $data = <$fh>;
 close $fh;
 $json = decode_json($data);
 
-
-# print STDERR "outname: $outname\n";
 my $out_source_text= "$outname.text.$source" ;
 my $out_source_context= "$outname.context.$source" ;
 my $out_target_text= "$outname.text.$target" ;
@@ -132,12 +122,8 @@ print STDERR "src-trg sentence pairs = ".scalar(@$json)."\n";
 
 
 foreach my $sentence_pair (@$json){
-#      print STDERR "json src:".$sentence_pair->{'source'}."\n";
     my $filename = $sentence_pair->{'document id'};
-   # $filename =~ s/\.$target(\.\d+)?$//; ## filenames in json given with .de or .de.number (news-test2008-ref.de.10)
-
-#     print STDERR "filename $filename\n";
-    
+ 
     ## check for missing files
     if(!(exists($filenames{$filename}))){
         print STDERR "missing file: $filename\n";
@@ -148,8 +134,7 @@ foreach my $sentence_pair (@$json){
     my $line = $sentence_pair->{'segment id'};
     my $source = @{$filenames{$filename}{"src"}}[$line];
     #       
-    if($source and &noWS($source) eq &noWS($sentence_pair->{'source'}) ){ ## check if we have the same sentence in from document and json
-    #          print STDERR "src retrieved: $source\n"; $
+    if($source and &noWS($source) eq &noWS($sentence_pair->{'source'}) ){ ## check if we have the same sentence in document and json
                
                 if($line>1){
                     for(my $c=$context;$c>=1;$c--){
