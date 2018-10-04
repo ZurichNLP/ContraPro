@@ -40,7 +40,7 @@ fi
 # remove a stray document pair
 rm -rf documents/1191
 
-# remove source files - uncomment if you would like to keep them
+# remove source files - comment out if you would like to keep them
 rm -f source.de-en.zip
 rm -f OpenSubtitles2018.de-en.{de,en,ids}
 rm -f doc.order.en-de.txt
