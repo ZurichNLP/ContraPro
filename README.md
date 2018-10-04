@@ -47,7 +47,7 @@ Extract raw text (plus context) for the ContraPro test set. Note that you can ch
     perl conversion_scripts/json2text_and_context.pl --source en --target de --dir \
     [/path/to/OpenSubtitles_with_document_splitting, e.g. "documents"] --json contrapro.json --context 1
 
-The previous step will produce 4 files (all should have the same number of lines):
+The previous step will produce 4 files:
 
 - `contrapro.text.{en,de}`: Source and target sentences, one sentence per line.
 - `contrapro.context.{en,de}`: Source and target contexts, one sentence per line. If a sentence in `contrapro.text.{en,de}` has no context (e.g. because it is the first sentence in a document), this corresponds to an _empty line_ in `contrapro.context.{en,de}`.
