@@ -1,28 +1,46 @@
-#!/bin/sh
+#!/bin/bash
+
+set -e
 
 url='http://opus.nlpl.eu/download.php?f=OpenSubtitles2018/de-en.txt.zip'
 scripts=conversion_scripts
 
-# download OpenSubtitles 2018 EN-DE
-wget $url -O source.de-en.zip
+echo "| Downloading and unzipping corpus..."
 
-# unzip XML files
-unzip source.de-en.zip
+# download OpenSubtitles 2018 EN-DE and unzip
+if [ `ls OpenSubtitles2018.* 2> /dev/null | wc -l` == 3 ]; then
+    echo "| - OpenSubtitles seems to be downloaded and unzipped already. To repeat download, remove one of  ['OpenSubtitles2018.de-en.ids', 'OpenSubtitles2018.de-en.en', 'OpenSubtitles2018.de-en.de']."
+else
+    wget $url -O source.de-en.zip
+    unzip -o source.de-en.zip
+fi
+
+echo "| Extracting documents from XML files..."
 
 # extract documents
-mkdir -p documents
-perl $scripts/opusXML2docs.pl --ids OpenSubtitles2018.de-en.ids --l1 en --l2 de --outdir documents --source OpenSubtitles2018.de-en.en --target OpenSubtitles2018.de-en.de
+if [ ! -d documents ]; then
+    mkdir documents
+    perl $scripts/opusXML2docs.pl --ids OpenSubtitles2018.de-en.ids --l1 en --l2 de --outdir documents --source OpenSubtitles2018.de-en.en --target OpenSubtitles2018.de-en.de
+else
+    echo "| - Documents seem to be extracted already. To repeat extraction, remove the folder 'documents'."
+fi
+
+echo "| Organize into folders by year and clean up..."
 
 # organize into folders
-for file in documents/*; do
-    mkdir -p -- "${file%%_*}"
-    mv -- "$file" "${file%%_*}"
-done
+if [ ! -d documents/1916 ]; then
+    for file in documents/*; do
+        mkdir -p -- "${file%%_*}"
+        mv -- "$file" "${file%%_*}"
+    done
+else
+    echo "| - Documents seem to be organized by year already. To repeat, remove all subfolders documents/*"
+fi
 
 # remove a stray document pair
-rm -r documents/1191
+rm -rf documents/1191
 
 # remove source files - uncomment if you would like to keep them
-rm source.de-en.zip
-rm OpenSubtitles2018.de-en.{de,en}
-rm doc.order.en-de.txt
+rm -f source.de-en.zip
+rm -f OpenSubtitles2018.de-en.{de,en,ids}
+rm -f doc.order.en-de.txt
