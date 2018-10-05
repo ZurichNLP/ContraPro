@@ -131,12 +131,15 @@ foreach my $sentence_pair (@$json){
     #       
     if($source and &noWS($source) eq &noWS($sentence_pair->{'source'}) ){ ## check if we have the same sentence in document and json
                   for(my $c=$context;$c>=1;$c--){
-                     my $src_line = @{$filenames{$filename}{"src"}}[$line-$c];
-                     my $trg_line = @{$filenames{$filename}{"trg"}}[$line-$c]; # can be empty if at start of file, in that case, print \n
-                     $src_line =~ s/\n//;
-                     $trg_line =~ s/\n//;
-                     print OUT_S_CONTEXT $src_line."\n";
-                     print OUT_T_CONTEXT $trg_line."\n";
+                  
+                     my $src_line ="\n";
+                     my $trg_line = "\n";
+                     if($line-$c >= 1){
+                       $src_line = @{$filenames{$filename}{"src"}}[$line-$c];
+                       $trg_line = @{$filenames{$filename}{"trg"}}[$line-$c]; 
+                      }
+                     print OUT_S_CONTEXT $src_line;
+                     print OUT_T_CONTEXT $trg_line;
                      
                   }
                     
@@ -149,12 +152,15 @@ foreach my $sentence_pair (@$json){
                     foreach my $error (@{$sentence_pair->{'errors'}}){
                         my $contrastive = $error->{'contrastive'};
                         for(my $c=$context;$c>=1;$c--){
-                                my $src_line = @{$filenames{$filename}{"src"}}[$line-$c];
-                                my $trg_line = @{$filenames{$filename}{"trg"}}[$line-$c]; # can be empty if at start of file, in that case, print \n
-                                $src_line =~ s/\n//;
-                                $trg_line =~ s/\n//;
-                                print OUT_S_CONTEXT $src_line."\n";
-                                print OUT_T_CONTEXT $trg_line."\n";
+                                my $src_line ="\n";
+                                my $trg_line = "\n";
+                                if($line-$c >= 1){
+                                    $src_line = @{$filenames{$filename}{"src"}}[$line-$c];
+                                    $trg_line = @{$filenames{$filename}{"trg"}}[$line-$c]; 
+                                }
+
+                                print OUT_S_CONTEXT $src_line;
+                                print OUT_T_CONTEXT $trg_line;
                      
                         }
                         
