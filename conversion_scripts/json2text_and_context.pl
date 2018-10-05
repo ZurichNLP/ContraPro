@@ -19,6 +19,7 @@ available options are:
 --json|j: json test set
 --context|c: print n context sentences (both source and target, default: 1)
 --no-contrastives: do not print contrastive sentence pairs, print only source and reference
+--context-json: print context sentences as json (array of hashes)
 --verbose|v: be verbose\n";
 
 
@@ -29,6 +30,7 @@ my $dir;
 my $json_file;
 my $context=1;
 my $no_contrastives=0;
+my $context_json = '';
 my $verbose = '';
 
 GetOptions(
@@ -40,6 +42,7 @@ GetOptions(
     'json|j=s' => \$json_file,
     'context|c=i' => \$context,
     'no-contrastives|s' => \$no_contrastives,
+    'context-json' => \$context_json,
     'verbose|v' => \$verbose
 ) or die "Incorrect usage!\n $helpstring";
 
@@ -114,7 +117,8 @@ open (OUT_T_CONTEXT, ">:encoding(UTF-8)", $out_target_context) or die "Can't ope
 my $sentpair_count=0;
 print STDERR "src-trg sentence pairs = ".scalar(@$json)."\n";
 
-
+my @json_out_s = ();
+my @json_out_t = ();
 
 foreach my $sentence_pair (@$json){
     my $filename = $sentence_pair->{'document id'};
@@ -130,18 +134,8 @@ foreach my $sentence_pair (@$json){
     my $source = @{$filenames{$filename}{"src"}}[$line];
     #       
     if($source and &noWS($source) eq &noWS($sentence_pair->{'source'}) ){ ## check if we have the same sentence in document and json
-                  for(my $c=$context;$c>=1;$c--){
-                  
-                     my $src_line ="\n";
-                     my $trg_line = "\n";
-                     if($line-$c >= 1){
-                       $src_line = @{$filenames{$filename}{"src"}}[$line-$c];
-                       $trg_line = @{$filenames{$filename}{"trg"}}[$line-$c]; 
-                      }
-                     print OUT_S_CONTEXT $src_line;
-                     print OUT_T_CONTEXT $trg_line;
-                     
-                  }
+    
+                &printContext($context, $line, $filename, \%filenames, \@json_out_s, \@json_out_t);
                     
                 ## print this source and contrastive sentence from error
                 print OUT_S_TEXT "$source";
@@ -151,18 +145,7 @@ foreach my $sentence_pair (@$json){
                 unless($no_contrastives){
                     foreach my $error (@{$sentence_pair->{'errors'}}){
                         my $contrastive = $error->{'contrastive'};
-                        for(my $c=$context;$c>=1;$c--){
-                                my $src_line ="\n";
-                                my $trg_line = "\n";
-                                if($line-$c >= 1){
-                                    $src_line = @{$filenames{$filename}{"src"}}[$line-$c];
-                                    $trg_line = @{$filenames{$filename}{"trg"}}[$line-$c]; 
-                                }
-
-                                print OUT_S_CONTEXT $src_line;
-                                print OUT_T_CONTEXT $trg_line;
-                     
-                        }
+                        &printContext($context, $line, $filename, \%filenames, \@json_out_s, \@json_out_t);
                         
                         ## print this source and contrastive sentence from error
                         print OUT_S_TEXT "$source";
@@ -177,13 +160,58 @@ foreach my $sentence_pair (@$json){
     }
 }
 
-
+if($context_json){
+    my $json_s = new JSON::PP();
+    my $pretty_s = $json_s->indent->canonical->encode(\@json_out_s);
+    my $json_t = new JSON::PP();
+    my $pretty_t = $json_t->indent->canonical->encode(\@json_out_t);
+    
+print OUT_S_CONTEXT $pretty_s;
+print OUT_T_CONTEXT $pretty_t;
+}
 
 sub noWS{
  my $string = $_[0];
  return $string =~ s/\s\t\n//g;
 }
 
+sub printContext{
+    my $context = $_[0];
+    my $line = $_[1];
+    my $filename = $_[2];
+    my $filenames = $_[3];
+    my $json_out_s = $_[4];
+    my $json_out_t = $_[5];
+    
+    my %json_context_s =();
+    my %json_context_t =();
+    my $i=1;
+    
+    for(my $c=$context;$c>=1;$c--){
+        my $src_line ="\n";
+        my $trg_line = "\n";
+        if($line-$c >= 1){
+                $src_line = @{$filenames->{$filename}{"src"}}[$line-$c];
+                $trg_line = @{$filenames->{$filename}{"trg"}}[$line-$c]; 
+        }
+        if($context_json){
+                $src_line =~ s/\n//;
+                $trg_line =~ s/\n//;
+                $json_context_s{$i} = $src_line;
+                $json_context_t{$i} = $trg_line;
+                $i++;
+        }
+        else{
+                print OUT_S_CONTEXT $src_line;
+                print OUT_T_CONTEXT $trg_line;
+       }
+        if($context_json){
+                push(@{$json_out_s}, \%json_context_s );
+                push(@{$json_out_t}, \%json_context_t );
+        }
+    }
+
+}
 
 
 
