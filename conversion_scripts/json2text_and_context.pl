@@ -130,17 +130,16 @@ foreach my $sentence_pair (@$json){
     my $source = @{$filenames{$filename}{"src"}}[$line];
     #       
     if($source and &noWS($source) eq &noWS($sentence_pair->{'source'}) ){ ## check if we have the same sentence in document and json
-               
-                if($line>1){
-                    for(my $c=$context;$c>=1;$c--){
-                        print OUT_S_CONTEXT @{$filenames{$filename}{"src"}}[$line-$c];
-                        print OUT_T_CONTEXT @{$filenames{$filename}{"trg"}}[$line-$c];
-                    }
-                }
-                elsif($line=1){
-                    print OUT_S_CONTEXT "\n";
-                    print OUT_T_CONTEXT "\n";
-                }
+                  for(my $c=$context;$c>=1;$c--){
+                     my $src_line = @{$filenames{$filename}{"src"}}[$line-$c];
+                     my $trg_line = @{$filenames{$filename}{"trg"}}[$line-$c]; # can be empty if at start of file, in that case, print \n
+                     $src_line =~ s/\n//;
+                     $trg_line =~ s/\n//;
+                     print OUT_S_CONTEXT $src_line."\n";
+                     print OUT_T_CONTEXT $trg_line."\n";
+                     
+                  }
+                    
                 ## print this source and contrastive sentence from error
                 print OUT_S_TEXT "$source";
                 print OUT_T_TEXT @{$filenames{$filename}{"trg"}}[$line];
@@ -149,18 +148,16 @@ foreach my $sentence_pair (@$json){
                 unless($no_contrastives){
                     foreach my $error (@{$sentence_pair->{'errors'}}){
                         my $contrastive = $error->{'contrastive'};
+                        for(my $c=$context;$c>=1;$c--){
+                                my $src_line = @{$filenames{$filename}{"src"}}[$line-$c];
+                                my $trg_line = @{$filenames{$filename}{"trg"}}[$line-$c]; # can be empty if at start of file, in that case, print \n
+                                $src_line =~ s/\n//;
+                                $trg_line =~ s/\n//;
+                                print OUT_S_CONTEXT $src_line."\n";
+                                print OUT_T_CONTEXT $trg_line."\n";
+                     
+                        }
                         
-                        if($line>1){
-                            ## print context up to and including sentence -1 from current sentence
-                            for(my $c=$context;$c>=1;$c--){
-                                print OUT_S_CONTEXT @{$filenames{$filename}{"src"}}[$line-$c];
-                                print OUT_T_CONTEXT @{$filenames{$filename}{"trg"}}[$line-$c];
-                            }
-                        }
-                        elsif($line=1){
-                            print OUT_S_CONTEXT "\n";
-                            print OUT_T_CONTEXT "\n";
-                        }
                         ## print this source and contrastive sentence from error
                         print OUT_S_TEXT "$source";
                         print OUT_T_TEXT "$contrastive\n";
