@@ -7,6 +7,8 @@ ContraPro
 
 The test set allows for a targeted evaluation of **English--German** pronoun translation, with a _contrastive_ set of translations.
 
+Please note: this repository does not contain any OpenSubtitles data. Instead, it includes code that automatically downloads resources.
+
 Contrastive Evaluation
 ----------------------
 
