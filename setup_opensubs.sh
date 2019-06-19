@@ -8,8 +8,8 @@ scripts=conversion_scripts
 echo "| Downloading and unzipping corpus..."
 
 # download OpenSubtitles 2018 EN-DE and unzip
-if [ `ls OpenSubtitles2018.* 2> /dev/null | wc -l` == 3 ]; then
-    echo "| - OpenSubtitles seems to be downloaded and unzipped already. To repeat download, remove one of  ['OpenSubtitles2018.de-en.ids', 'OpenSubtitles2018.de-en.en', 'OpenSubtitles2018.de-en.de']."
+if [ `ls OpenSubtitles.* 2> /dev/null | wc -l` == 3 ]; then
+    echo "| - OpenSubtitles seems to be downloaded and unzipped already. To repeat download, remove one of  ['OpenSubtitles.de-en.ids', 'OpenSubtitles.de-en.en', 'OpenSubtitles.de-en.de']."
 else
     wget $url -O source.de-en.zip
     unzip -o source.de-en.zip
@@ -20,7 +20,7 @@ echo "| Extracting documents from XML files..."
 # extract documents
 if [ ! -d documents ]; then
     mkdir documents
-    perl $scripts/opusXML2docs.pl --ids OpenSubtitles2018.de-en.ids --l1 en --l2 de --outdir documents --source OpenSubtitles2018.de-en.en --target OpenSubtitles2018.de-en.de
+    perl $scripts/opusXML2docs.pl --ids OpenSubtitles.de-en.ids --l1 en --l2 de --outdir documents --source OpenSubtitles.de-en.en --target OpenSubtitles.de-en.de
 else
     echo "| - Documents seem to be extracted already. To repeat extraction, remove the folder 'documents'."
 fi
@@ -42,5 +42,6 @@ rm -rf documents/1191
 
 # remove source files - comment out if you would like to keep them
 rm -f source.de-en.zip
-rm -f OpenSubtitles2018.de-en.{de,en,ids}
+rm -f OpenSubtitles.de-en.{de,en,ids}
 rm -f doc.order.en-de.txt
+rm -f README
