@@ -4,8 +4,9 @@
 
 from __future__ import division, print_function, unicode_literals
 import sys
-reload(sys);
-sys.setdefaultencoding("utf8")
+if sys.version_info[0] < 3:
+    reload(sys)
+    sys.setdefaultencoding("utf8")
 import json
 import argparse
 from collections import defaultdict, OrderedDict
@@ -16,34 +17,32 @@ import scipy.stats
 # usage: python evaluate.py errors.json < scores
 # by default, lower scores (closer to zero for log-prob) are better
 
-     
-
 def count_errors(reference, scores, maximize, verbose=False):
     """read in scores file and count number of correct decisions"""
 
     reference = json.load(reference)
 
     results = {'by_category': defaultdict(lambda: defaultdict(int)),
-	       'by_intrasegmental': defaultdict(lambda: defaultdict(int)),
-	       'by_ante_distance': defaultdict(lambda: defaultdict(int)),
-	       'ante_dist_stats' : defaultdict(lambda: defaultdict(int))
-	       }
+               'by_intrasegmental': defaultdict(lambda: defaultdict(int)),
+               'by_ante_distance': defaultdict(lambda: defaultdict(int)),
+               'ante_dist_stats' : defaultdict(lambda: defaultdict(int))
+              }
 
     if maximize:
         better = gt
     else:
         better = lt
-        
-    readlines =0    
+
+    readlines =0
 
     for count, sentence in enumerate(reference):
         #print(count)
         score = float(scores.readline())
-        
+
         readlines +=1
 
         all_better = True
-        
+
         category = sentence['src pronoun'].lower() + ":" + sentence['ref pronoun'].lower()
         results['by_category'][category]['total'] += 1
         ante_dist = sentence['ante distance']
@@ -58,12 +57,12 @@ def count_errors(reference, scores, maximize, verbose=False):
             readlines +=1
             if not better(score, errorscore):
                     all_better = False
-            
+
         if all_better:
             results['by_category'][category]['correct'] += 1
             results['by_intrasegmental'][intrasegmental]['correct'] += 1
             results['by_ante_distance'][str(ante_dist)]['correct'] += 1
-                
+
         if verbose and ante_dist ==0:
                 if all_better:
                     print("correct")
@@ -76,7 +75,6 @@ def count_errors(reference, scores, maximize, verbose=False):
                 print("src ante: {}".format(sentence["src ante phrase"]))
                 print("ref ante: {}".format(sentence["ref ante phrase"]))
                 print()
-                
 
     return results 
 
@@ -102,7 +100,7 @@ def print_statistics_by_category(results):
 
     for category in sorted(results['by_category']):
         correct, total, accuracy = get_scores(results['by_category'][category])
-	if total:
+        if total:
             print('{0} : {1} {2} {3}'.format(category, correct, total, accuracy))
 
 def print_statistics_by_intrasegmental(results):
@@ -110,15 +108,15 @@ def print_statistics_by_intrasegmental(results):
     for intrasegmental in sorted(results['by_intrasegmental']):
         correct, total, accuracy = get_scores(results['by_intrasegmental'][intrasegmental])
         if total:
-	    print('{0} : {1} {2} {3} '.format(intrasegmental, correct, total, accuracy))
-	    
+            print('{0} : {1} {2} {3} '.format(intrasegmental, correct, total, accuracy))
+
 def print_statistics_by_distance(results):
 
     for distance in sorted(results['by_ante_distance']):
         correct, total, accuracy = get_scores(results['by_ante_distance'][distance])
         if total:
-	    print('{0} : {1} {2} {3} '.format(distance, correct, total, accuracy))   
-	    
+            print('{0} : {1} {2} {3} '.format(distance, correct, total, accuracy))
+
 def print_ante_distance_stats(results):
 
     for distance in sorted(results['ante_dist_stats']):
@@ -127,9 +125,6 @@ def print_ante_distance_stats(results):
             total = results['ante_dist_stats'][distance][category]
             if total:
                 print('{} {} '.format(category, total))
-    
-
-
 
 def main(reference, scores, maximize, verbose):
 
@@ -148,7 +143,6 @@ def main(reference, scores, maximize, verbose):
     print() 
     print('ante distance per pronoun pairs')
     print_ante_distance_stats(results)
-   
 
 if __name__ == '__main__':
 
