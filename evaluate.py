@@ -9,6 +9,7 @@ if sys.version_info[0] < 3:
     sys.setdefaultencoding("utf8")
 import json
 import argparse
+import codecs
 from collections import defaultdict, OrderedDict
 from operator import gt, lt
 import scipy
@@ -157,6 +158,9 @@ if __name__ == '__main__':
                         help="File with scores (one per line)")
 
     args = parser.parse_args()
+
+    # read/write files as UTF-8
+    args.reference = codecs.open(args.reference.name, encoding='utf-8')
 
     #enc = sys.getdefaultencoding()
     #print('enc:', enc)
